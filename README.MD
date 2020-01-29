@@ -12,7 +12,7 @@ http://localhost:8080
 
 项目截图:
 
-![](https://raw.githubusercontent.com/ComingPass/AssetManager/master/docs/pics/asset_manager.jpg)
+![](docs/pics/asset_manager.jpg)
 
 使用方式:
 
@@ -20,7 +20,7 @@ http://localhost:8080
 
 |  key   |                            value                             |
 | :----: | :----------------------------------------------------------: |
-|  url   | http://xxx.com/general_asset_manage_system/data_manage/select_data |
+|  url   | http://127.0.0.1:8080/general_asset_manage_system/data_manage/select_data |
 | method |                             POST                             |
 |  body  |                {"asset_type_str":"资产名称"}                 |
 

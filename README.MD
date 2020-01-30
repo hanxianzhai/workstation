@@ -1,28 +1,15 @@
-开发语言及版本:
-python 3.x
+# 明确目标
 
-安装环境依赖:
-pip install -r requirements.txt
+从中央仓库拉取资源
 
-启动项目:
-python setup.py
+以套版的方式展示数据
 
-访问:
-http://localhost:8080
+数据的CRUD会伴随着后端的动作进行而进行
 
-项目截图:
+拥有特殊的批量操作数据的方式
 
-![](docs/pics/asset_manager.jpg)
+操作数据后拥有进度查询和日志查看
 
-使用方式:
 
-外部网络请求:
 
-|  key   |                            value                             |
-| :----: | :----------------------------------------------------------: |
-|  url   | http://127.0.0.1:8080/general_asset_manage_system/data_manage/select_data |
-| method |                             POST                             |
-|  body  |                {"asset_type_str":"资产名称"}                 |
-
-响应:
-{"data": [], "total": 0}
+需要在act-organ和distribution项目开发之后开发

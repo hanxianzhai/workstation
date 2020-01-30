@@ -14,4 +14,4 @@
 
 
 
-需要在act-organ和distribution项目开发之后开发
+需要在design-organ和distribution和act-organ项目开发之后开发

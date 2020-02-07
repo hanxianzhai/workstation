@@ -12,6 +12,8 @@
 
 操作数据后拥有进度查询和日志查看
 
+操作过程类似jira
+
 
 
 需要在design-organ和distribution和act-organ项目开发之后开发

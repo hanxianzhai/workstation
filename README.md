@@ -1,34 +1,32 @@
-# Dashboard
+[English](README.md) | [中文](README_zh_CN.md)
 
-## User
+# Workstation
 
-### user
+## Dashboard
+
+### User
+
+#### User
 
 LDAP
 
 outside use system
 
-### role
-
-enterprise organization
-
-detail function role
-
-### authenticate&authorization
+#### Auth
 
 X-line: directory/page/function/data
 
 Y-line: watch/get/create/update/delete
 
-## process engine
+#### Role
 
-pickup the suitable  business to suitable directory or function
+enterprise organization
 
-split it and set the trigger point to process engine
+detail function role
 
+#### Audit
 
-
-## data board
+### DataOperator
 
 it seems like grafana but it so different , it so awesome
 
@@ -45,3 +43,48 @@ funcation
 logging
 
 monitoring
+
+### Workflow
+
+pickup the suitable  business to suitable directory or function
+
+split it and set the trigger point to process engine
+
+### Visual
+
+it seems like grafana but it so different , it so awesome
+
+## Designer
+
+### DataDesigner
+
+#### component
+
+##### MetaData
+
+###### DataStructure
+
+###### DataConstraint
+
+###### DataQuote
+
+##### DataDirectory
+
+##### DataTrigger-Subscriber
+
+##### DataInputChannel-OutputChannel
+
+
+#### Research
+
+[bk-cmdb](docs/research/bk-cmdb.md)
+
+### CommandDesigner
+
+write by python/shell/nodejs
+
+it also has trigger
+
+### LogicDesigner
+
+made up by data + command + logic

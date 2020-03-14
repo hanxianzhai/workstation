@@ -58,26 +58,19 @@ it seems like grafana but it so different , it so awesome
 
 ### DataDesigner
 
-#### component
+#### MetaData
 
-##### MetaData
+##### DataStructure
 
-###### DataStructure
+##### DataConstraint
 
-###### DataConstraint
+##### DataQuote
 
-###### DataQuote
+#### DataDirectory
 
-##### DataDirectory
+#### DataTrigger-Subscriber
 
-##### DataTrigger-Subscriber
-
-##### DataInputChannel-OutputChannel
-
-
-#### Research
-
-[bk-cmdb](docs/research/bk-cmdb.md)
+#### DataInputChannel-OutputChannel
 
 ### CommandDesigner
 
@@ -88,3 +81,9 @@ it also has trigger
 ### LogicDesigner
 
 made up by data + command + logic
+
+
+
+#### Research
+
+[bk-cmdb](docs/research/bk-cmdb.md)

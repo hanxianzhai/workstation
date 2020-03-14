@@ -10,7 +10,7 @@
 
 LDAP
 
-outside use system
+outside user system
 
 #### Auth
 

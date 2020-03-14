@@ -1,3 +1,4 @@
+[English](bk-cmdb.md) | [中文](bk-cmdb_zh_CN.md)
 # address
 
 source code project address: https://github.com/Tencent/bk-cmdb

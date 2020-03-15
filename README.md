@@ -2,6 +2,34 @@
 
 # Workstation
 
+## Designer
+
+### DataDesigner
+
+#### MetaData
+
+##### DataStructure
+
+##### DataConstraint
+
+##### DataQuote
+
+#### DataDirectory
+
+#### DataTrigger-Subscriber
+
+#### DataInputChannel-OutputChannel
+
+### CommandDesigner
+
+write by python/shell/nodejs
+
+it also has trigger
+
+### LogicDesigner
+
+made up by data + command + logic
+
 ## Dashboard
 
 ### User
@@ -54,36 +82,10 @@ split it and set the trigger point to process engine
 
 it seems like grafana but it so different , it so awesome
 
-## Designer
-
-### DataDesigner
-
-#### MetaData
-
-##### DataStructure
-
-##### DataConstraint
-
-##### DataQuote
-
-#### DataDirectory
-
-#### DataTrigger-Subscriber
-
-#### DataInputChannel-OutputChannel
-
-### CommandDesigner
-
-write by python/shell/nodejs
-
-it also has trigger
-
-### LogicDesigner
-
-made up by data + command + logic
 
 
 
-#### Research
+
+# Research
 
 [bk-cmdb](docs/research/bk-cmdb.md)

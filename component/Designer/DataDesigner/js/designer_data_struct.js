@@ -72,8 +72,8 @@ function editable_table_common_operation_column() {
                         click: () => {
                             const cur_line_index = params.index;
                             const cur_line_data = vue_data.data_struct.data[cur_line_index];
-                            cur_line_data['id'] = vue_data.data_directory.cur_selected.id;
-                            insert_designer_data_struct(cur_line_data)
+                            cur_line_data['did'] = vue_data.data_directory.cur_selected.id;
+                            opt_data(cur_line_data);
                         }
                     }
                 }, 'save'));
@@ -210,15 +210,28 @@ async function cancel_opt_data() {
     vue_data.data_struct.opt_line = -1;
 }
 
+async function opt_data(cur_line_data) {
+    // operation type
+    const opt_name = vue_data.data_struct.opt_name;
+    let request_data = {};
+    if ("insert" == opt_name) {
+        insert_designer_data_struct(cur_line_data);
+    } else if ("update" == opt_name) {
+        update_designer_data_struct(cur_line_data);
+    } else if ("delete" == opt_name) {
+        delete_designer_data_struct(cur_line_data);
+    }
+}
+
 async function query_designer_data_struct() {
     try {
         cancel_opt_data();
         // prepare data struct data
-        const data_struct = {"id": vue_data.data_directory.cur_selected.id};
+        const data_struct = {"did": vue_data.data_directory.cur_selected.id};
         // query data_struct from distribution
         const net_request_result = await do_execute_sql({
             "execute": `
-                select code, meaning from designer_data_struct where id = {{id}}
+                select id, code, meaning from designer_data_struct where did = {{did}}
                 `.format(data_struct),
         });
         if (!net_request_result || !net_request_result.status || net_request_result.status != 200 || !net_request_result.data) return;
@@ -236,19 +249,55 @@ async function insert_designer_data_struct(data_struct) {
         // query data_struct from distribution
         const net_request_result = await do_execute_sql({
             "execute": `
-                insert into designer_data_struct(id, code, meaning) values ({{id}},'{{code}}','{{meaning}}')
+                insert into designer_data_struct(did, code, meaning) values ({{did}},'{{code}}','{{meaning}}')
                 `.format(data_struct),
         });
         if (!net_request_result || !net_request_result.status || net_request_result.status != 200 || !net_request_result.data) return;
         vue_data.data_struct.data = net_request_result.data;
         // adapter list to tree
-        component.$Message.success('query success');
+        component.$Message.success('insert success');
         query_designer_data_struct();
     } catch (e) {
-        console.log(e);
+        console.log(e.response.data);
         component.$Message.error(e.response.data);
     }
 }
 
+async function update_designer_data_struct(data_struct) {
+    try {
+        // query data_struct from distribution
+        const net_request_result = await do_execute_sql({
+            "execute": `
+                update designer_data_struct set code = '{{code}}',meaning = '{{meaning}}' where id = {{id}}
+                `.format(data_struct),
+        });
+        if (!net_request_result || !net_request_result.status || net_request_result.status != 200 || !net_request_result.data) return;
+        vue_data.data_struct.data = net_request_result.data;
+        // adapter list to tree
+        component.$Message.success('update success');
+        query_designer_data_struct();
+    } catch (e) {
+        console.log(e.response.data);
+        component.$Message.error(e.response.data);
+    }
+}
 
+async function delete_designer_data_struct(data_struct) {
+    try {
+        // query data_struct from distribution
+        const net_request_result = await do_execute_sql({
+            "execute": `
+                delete from designer_data_struct where id = {{id}}
+                `.format(data_struct),
+        });
+        if (!net_request_result || !net_request_result.status || net_request_result.status != 200 || !net_request_result.data) return;
+        vue_data.data_struct.data = net_request_result.data;
+        // adapter list to tree
+        component.$Message.success('update success');
+        query_designer_data_struct();
+    } catch (e) {
+        console.log(e.response.data);
+        component.$Message.error(e.response.data);
+    }
+}
 

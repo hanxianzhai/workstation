@@ -1,11 +1,13 @@
 [English](README.md) | [中文](README_zh_CN.md)
 # DataDesigner
 
+# Now
+
 ![simple_architecture](docs/images/designer_data_preview_v0.0.1.png)
 
 
 
-
+# Next
 
 differences from traditional databases:
 
@@ -19,3 +21,16 @@ DataDirectory       Metadata
 Share/Fork          Version/Rollback
 
 
+## MetaData
+
+### DataStructure
+
+### DataConstraint
+
+### DataQuote
+
+## DataDirectory
+
+## DataTrigger-Subscriber
+
+## DataInputChannel-OutputChannel

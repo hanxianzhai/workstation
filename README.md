@@ -4,21 +4,7 @@
 
 ## Designer
 
-### DataDesigner
-
-#### MetaData
-
-##### DataStructure
-
-##### DataConstraint
-
-##### DataQuote
-
-#### DataDirectory
-
-#### DataTrigger-Subscriber
-
-#### DataInputChannel-OutputChannel
+### [DataDesigner](component/Designer/DataDesigner/README.md)
 
 ### CommandDesigner
 

@@ -30,14 +30,14 @@
 <body>
 <div id="app">
     current selected data directory is: <span
-        style="font-size: 25px;margin-left: 30px">{{data_directory.selected}}</span><br>
+        style="font-size: 25px;margin-left: 30px">{{data_directory.cur_selected.name}}</span><br>
     <div id="designer_metadata_tree"></div>
     <!--operate the data struct-->
     <drawer
             title="adjusting the data structure"
             v-model="data_struct.show"
             :mask-closable="true"
-            placement="left"
+            :mask="false"
             width="360"
     >
         <i-table height="650" stripe border :columns="data_struct.columns" :data="data_struct.data"

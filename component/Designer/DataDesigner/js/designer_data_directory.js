@@ -1,6 +1,9 @@
 vue_data.data_directory = {
     tree: [],
-    selected: "",
+    cur_selected: {
+        name: "",
+        id: "",
+    },
 };
 
 async function init_designer_data_directory() {
@@ -55,11 +58,12 @@ function init_tree_view() {
             , data: vue_data.data_directory.tree
             , edit: ['add', 'update', 'del']
             , click: function (obj) {
-                vue_data.data_directory.selected = obj.data.title;
+                vue_data.data_directory.cur_selected.name = obj.data.title;
+                vue_data.data_directory.cur_selected.id = obj.data.id;
                 if ("root" == obj.data.id) {
                     return;
                 }
-                vue_data.opt_data_struct.show = true;
+                vue_data.data_struct.show = true;
             }
             , operate: function (obj) {
                 const type = obj.type;

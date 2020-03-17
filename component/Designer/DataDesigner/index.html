@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>数据模型设计器</title>
+    <script src="../../../js/lib/vue.min.js"></script>
+    <script src="../../../js/lib/iview/iview.min.js"></script>
+    <script src="../../../js/lib/axios/axios.min.js"></script>
+    <script src="../../../js/lib/layui/layui.js"></script>
+    <script src="../../../js/service/common.js"></script>
+
+    <link rel="stylesheet" href="../../../css/lib/iview.css" type="text/css">
+    <link rel="stylesheet" href="../../../js/lib/layui/css/layui.css" type="text/css">
+    <link rel="stylesheet" href="../../../css/commen.css" type="text/css">
+    <style>
+        #app {
+            /*padding: 32px;*/
+        }
+
+        .demo-split {
+            height: 100vh;
+            border: 1px solid #dcdee2;
+        }
+
+        .demo-split-pane {
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    current selected data directory is: <span
+        style="font-size: 25px;margin-left: 30px">{{data_directory.selected}}</span><br>
+    <div id="designer_metadata_tree"></div>
+</div>
+<script>
+    const vue_data = {
+        data_directory: {
+            tree: [],
+            selected: "",
+        },
+        opt_data_struct: {
+            show: false,
+            opt_name: "insert",
+            formValidate: {
+                insert: {
+                    code: "",
+                    meaning: "",
+                },
+                delete: {
+                    code: [],
+                },
+                update: {
+                    code: "",
+                    meaning: "",
+                },
+            },
+            formResult: {
+                insert: {
+                    code: "",
+                    meaning: "",
+                },
+                delete: {
+                    code: "",
+                    meaning: "",
+                },
+                update: {
+                    code: "",
+                    meaning: "",
+                },
+            },
+            ruleValidate: {
+                insert: {
+                    code: [{required: true, message: '代码值不能为空', trigger: 'blur'}],
+                    meaning: [{required: true, message: '含义不能为空', trigger: 'blur'}],
+                },
+                delete: {
+                    code: [{required: true, message: '代码值不能为空', trigger: 'change'}],
+                    meaning: [{required: true, message: '含义不能为空', trigger: 'blur'}],
+                },
+                update: {
+                    code: [{required: true, message: '代码值不能为空', trigger: 'change'}],
+                    meaning: [{required: true, message: '含义不能为空', trigger: 'blur'}],
+                },
+            },
+        },
+    };
+    const vue_methods = {
+        opt_data_struct_handleSubmit(name) {
+            this.$refs[name].validate(async (valid) => {
+                if (!valid) {
+                    component.$Modal.error({
+                        title: "温馨提示",
+                        width: 500,
+                        content: "参数未填写完整",
+                    });
+                    return;
+                }
+                await do_opt_data_struct(name);
+                this.$refs[name].resetFields();
+            })
+        },
+        opt_data_struct_handleReset(name) {
+            this.$refs[name].resetFields();
+        },
+        switch_opt_data_struct_tab() {
+            do_switch_opt_data_struct_tab();
+        },
+    };
+</script>
+<script>
+    let Main = {
+        data() {
+            return vue_data;
+        },
+        methods: vue_methods
+    };
+    const component = new (Vue.extend(Main))().$mount('#app');
+</script>
+<script>
+    async function init_data() {
+        try {
+            // query data_directory from distribution
+            const net_request_result = await do_graphql({
+                "execute": `
+                select id,pid,name,description from designer_data_directories
+                `,
+            });
+            if (!net_request_result || !net_request_result.status || net_request_result.status != 200 || !net_request_result.data) return;
+            let original_tree_list = net_request_result.data;
+            // adapter list to tree
+            const name_str = "title";
+            const children_str = "children";
+
+            function setup_tree(pid) {
+                const cur_tree_level = [];
+                let i = original_tree_list.length;
+                while (i--) {
+                    const originalTreeListElement = original_tree_list[i];
+                    if (originalTreeListElement["pid"] == pid) {
+                        original_tree_list.splice(i, 1);
+                        const next_tree_level = setup_tree(originalTreeListElement["id"]);
+                        const cur_tree_data = originalTreeListElement;
+                        cur_tree_data[name_str] = originalTreeListElement["name"];
+                        cur_tree_data["spread"] = true;
+                        if (next_tree_level.length > 0) {
+                            cur_tree_data[children_str] = next_tree_level;
+                        }
+                        cur_tree_level.push(cur_tree_data);
+                    }
+                }
+                return cur_tree_level;
+            }
+
+            const tree_data = setup_tree(null);
+            vue_data.data_directory.tree = [{"title": "home", "children": tree_data, "spread": true, "id": null}];
+            init_tree_view();
+            component.$Modal.success({
+                title: "tips",
+                width: 500,
+                content: 'query success',
+                closable: true
+            });
+        } catch (e) {
+            console.log(e);
+            component.$Modal.error({
+                title: "tips",
+                width: 500,
+                content: e.response.data,
+            });
+        }
+    }
+
+    init_data();
+
+    function init_tree_view() {
+        layui.use(['tree', 'util'], function () {
+            const tree = layui.tree;
+            tree.render({
+                elem: '#designer_metadata_tree'
+                , data: vue_data.data_directory.tree
+                , edit: ['add', 'update', 'del']
+                , click: function (obj) {
+                    vue_data.data_directory.selected = obj.data.title;
+                    if ("root" == obj.data.id) {
+                        return;
+                    }
+                    vue_data.opt_data_struct.show = true;
+                }
+                , operate: function (obj) {
+                    const type = obj.type;
+                    if (type === 'add') {
+                        add_data_directory(obj)
+                    } else if (type === 'update') {
+                        update_metadata(obj)
+                    } else if (type === 'del') {
+                        delete_metadata(obj)
+                    }
+                }
+            });
+        });
+    }
+
+    async function add_data_directory(obj) {
+        try {
+            // prepare data directory data
+            const data_directory = {"pid": obj.data.id};
+            // save to distribution
+            const net_request_result = await do_graphql({
+                "mutation": `
+                {
+                    designer_data_directories{
+                        id pid name desc
+                    }
+                }
+                `,
+            });
+            if (!net_request_result || !net_request_result.status || net_request_result.status != 200 || !net_request_result.data) return;
+            await init_data();
+            component.$Modal.success({
+                title: "tips",
+                width: 500,
+                content: 'add success',
+                closable: true
+            });
+        } catch (e) {
+            console.log(e);
+            component.$Modal.error({
+                title: "tips",
+                width: 500,
+                content: e.response.data,
+            });
+        }
+    }
+
+    async function update_metadata(obj) {
+        const id = obj.data.id;
+        const name = obj.data.title;
+        const query_condition = {
+            "id": id,
+            "name": name,
+        };
+        try {
+            let net_request_result = await net_request.update_tree_general_asset_manage_system_metadata(query_condition);
+            // console.log(net_request_result);
+            if (!net_request_result || !net_request_result.status || net_request_result.status != 200 || !net_request_result.data) return;
+            const res_data = net_request_result.data;
+            component.$Modal.success({
+                title: "温馨提示",
+                width: 500,
+                content: '修改成功',
+                closable: true
+            });
+        } catch (e) {
+            console.log(e);
+            component.$Modal.error({
+                title: "温馨提示",
+                width: 500,
+                content: e.response.data,
+            });
+        }
+        await init_data();
+    }
+
+    async function delete_metadata(obj) {
+        const id = obj.data.id;
+        const query_condition = {
+            "id": id,
+        };
+        try {
+            let net_request_result = await net_request.delete_tree_general_asset_manage_system_metadata(query_condition);
+            // console.log(net_request_result);
+            if (!net_request_result || !net_request_result.status || net_request_result.status != 200 || !net_request_result.data) return;
+            const res_data = net_request_result.data;
+            component.$Modal.success({
+                title: "温馨提示",
+                width: 500,
+                content: '删除成功',
+                closable: true
+            });
+        } catch (e) {
+            console.log(e);
+            component.$Modal.error({
+                title: "温馨提示",
+                width: 500,
+                content: e.response.data,
+            });
+        }
+        await init_data();
+    }
+</script>
+</body>
+</html>

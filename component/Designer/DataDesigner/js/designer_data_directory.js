@@ -64,6 +64,7 @@ function init_tree_view() {
                     return;
                 }
                 vue_data.data_struct.show = true;
+                vue_methods.data_struct.do_query_designer_data_struct();
             }
             , operate: function (obj) {
                 const type = obj.type;
@@ -127,6 +128,7 @@ async function delete_data_directory(obj) {
         const data_directory = {
             "id": obj.data.id,
         };
+        // TODO fix the bug: cascade level delete
         // save to distribution
         const net_request_result = await do_execute_sql({
             "execute": `

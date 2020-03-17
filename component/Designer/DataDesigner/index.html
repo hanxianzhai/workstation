@@ -38,15 +38,28 @@
             v-model="data_struct.show"
             :mask-closable="true"
             :mask="false"
-            width="360"
+            width="1080"
     >
+        <i-button type="primary" long @click="execute('data_struct.do_insert_designer_data_struct')">add one line</i-button>
+        <br/>
+        <br/>
         <i-table height="650" stripe border :columns="data_struct.columns" :data="data_struct.data"
                  :loading="data_struct.loading"></i-table>
     </drawer>
 </div>
 <script>
     const vue_data = {};
-    const vue_methods = {};
+    const vue_methods = {
+        execute: function (name) {
+            let target_func = function () {
+            };
+            target_func = vue_methods;
+            for (const func_name_item of name.split(".")) {
+                target_func = target_func[func_name_item];
+            }
+            target_func();
+        }
+    };
 </script>
 <script src="js/designer_data_directory.js"></script>
 <script src="js/designer_data_struct.js"></script>

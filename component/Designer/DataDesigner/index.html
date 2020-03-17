@@ -121,7 +121,7 @@
     async function init_data() {
         try {
             // query data_directory from distribution
-            const net_request_result = await do_graphql({
+            const net_request_result = await do_execute_sql({
                 "execute": `
                 select id,pid,name,description from designer_data_directories
                 `,
@@ -155,19 +155,10 @@
             const tree_data = setup_tree(null);
             vue_data.data_directory.tree = [{"title": "home", "children": tree_data, "spread": true, "id": null}];
             init_tree_view();
-            component.$Modal.success({
-                title: "tips",
-                width: 500,
-                content: 'query success',
-                closable: true
-            });
+            component.$Message.success('query success');
         } catch (e) {
             console.log(e);
-            component.$Modal.error({
-                title: "tips",
-                width: 500,
-                content: e.response.data,
-            });
+            component.$Message.error(e.response.data);
         }
     }
 
@@ -192,9 +183,9 @@
                     if (type === 'add') {
                         add_data_directory(obj)
                     } else if (type === 'update') {
-                        update_metadata(obj)
+                        update_data_directory(obj)
                     } else if (type === 'del') {
-                        delete_metadata(obj)
+                        delete_data_directory(obj)
                     }
                 }
             });
@@ -204,89 +195,65 @@
     async function add_data_directory(obj) {
         try {
             // prepare data directory data
-            const data_directory = {"pid": obj.data.id};
+            const data_directory = {"pid": obj.data.id, name: ""};
             // save to distribution
-            const net_request_result = await do_graphql({
-                "mutation": `
-                {
-                    designer_data_directories{
-                        id pid name desc
-                    }
-                }
-                `,
+            const net_request_result = await do_execute_sql({
+                "execute": `
+                insert into designer_data_directories(pid,name) values ({{pid}},'{{name}}')
+                `.format(data_directory),
             });
             if (!net_request_result || !net_request_result.status || net_request_result.status != 200 || !net_request_result.data) return;
+            component.$Message.success('add success');
             await init_data();
-            component.$Modal.success({
-                title: "tips",
-                width: 500,
-                content: 'add success',
-                closable: true
-            });
         } catch (e) {
+            debugger
             console.log(e);
-            component.$Modal.error({
-                title: "tips",
-                width: 500,
-                content: e.response.data,
-            });
+            component.$Message.error(e.response.data);
         }
     }
 
-    async function update_metadata(obj) {
-        const id = obj.data.id;
-        const name = obj.data.title;
-        const query_condition = {
-            "id": id,
-            "name": name,
-        };
+    async function update_data_directory(obj) {
         try {
-            let net_request_result = await net_request.update_tree_general_asset_manage_system_metadata(query_condition);
-            // console.log(net_request_result);
-            if (!net_request_result || !net_request_result.status || net_request_result.status != 200 || !net_request_result.data) return;
-            const res_data = net_request_result.data;
-            component.$Modal.success({
-                title: "温馨提示",
-                width: 500,
-                content: '修改成功',
-                closable: true
+            // prepare data directory data
+            const data_directory = {
+                "id": obj.data.id,
+                "name": obj.data.title,
+            };
+            // save to distribution
+            const net_request_result = await do_execute_sql({
+                "execute": `
+                update designer_data_directories set name = '{{name}}' where id = {{id}}
+                `.format(data_directory),
             });
+            if (!net_request_result || !net_request_result.status || net_request_result.status != 200 || !net_request_result.data) return;
+            component.$Message.success('update success');
+            await init_data();
         } catch (e) {
             console.log(e);
-            component.$Modal.error({
-                title: "温馨提示",
-                width: 500,
-                content: e.response.data,
-            });
+            component.$Message.error(e.response.data);
         }
-        await init_data();
     }
 
-    async function delete_metadata(obj) {
-        const id = obj.data.id;
-        const query_condition = {
-            "id": id,
-        };
+    async function delete_data_directory(obj) {
         try {
-            let net_request_result = await net_request.delete_tree_general_asset_manage_system_metadata(query_condition);
-            // console.log(net_request_result);
+            // prepare data directory data
+            const data_directory = {
+                "id": obj.data.id,
+            };
+            // save to distribution
+            const net_request_result = await do_execute_sql({
+                "execute": `
+                delete from designer_data_directories where id = {{id}}
+                `.format(data_directory),
+            });
             if (!net_request_result || !net_request_result.status || net_request_result.status != 200 || !net_request_result.data) return;
-            const res_data = net_request_result.data;
-            component.$Modal.success({
-                title: "温馨提示",
-                width: 500,
-                content: '删除成功',
-                closable: true
-            });
+            component.$Message.success('delete success');
+            await init_data();
         } catch (e) {
+            debugger
             console.log(e);
-            component.$Modal.error({
-                title: "温馨提示",
-                width: 500,
-                content: e.response.data,
-            });
+            component.$Message.error(e.response.data);
         }
-        await init_data();
     }
 </script>
 </body>

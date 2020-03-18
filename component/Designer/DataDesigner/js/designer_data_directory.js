@@ -60,7 +60,7 @@ function init_tree_view() {
             , click: function (obj) {
                 vue_data.data_directory.cur_selected.name = obj.data.title;
                 vue_data.data_directory.cur_selected.id = obj.data.id;
-                if ("root" == obj.data.id) {
+                if (!obj.data.id) {
                     return;
                 }
                 vue_data.data_struct.show = true;
@@ -141,7 +141,7 @@ async function delete_data_directory(obj) {
         const data_directory = {
             "id": obj.data.id,
         };
-        if (obj.data.children){
+        if (obj.data.children) {
             component.$Message.error("this data directory has children");
             await init_designer_data_directory();
             return;
@@ -164,6 +164,8 @@ async function delete_data_directory(obj) {
         });
         if (!net_request_result || !net_request_result.status || net_request_result.status != 200 || !net_request_result.data) return;
         component.$Message.success('delete success');
+        // close the data struct
+        vue_data.data_struct.show = false;
         await init_designer_data_directory();
     } catch (e) {
         debugger

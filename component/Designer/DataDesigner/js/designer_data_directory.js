@@ -85,10 +85,23 @@ async function add_data_directory(obj) {
         // prepare data directory data
         const data_directory = {"pid": obj.data.id, name: ""};
         // save to distribution
-        const net_request_result = await do_execute_sql({
+        let net_request_result = await do_execute_sql({
             "execute": `
                 insert into designer_data_directories(pid,name) values ({{pid}},'{{name}}')
                 `.format(data_directory),
+        });
+        if (!net_request_result || !net_request_result.status || net_request_result.status != 200 || !net_request_result.data) return;
+        // create a data table
+        const db_data = {
+            "id": net_request_result.data
+        };
+        net_request_result = await do_execute_sql({
+            "execute": `
+                CREATE TABLE designer_data_data_{{id}} (
+                    id int(11) NOT NULL AUTO_INCREMENT,
+                    PRIMARY KEY (id)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+                `.format(db_data),
         });
         if (!net_request_result || !net_request_result.status || net_request_result.status != 200 || !net_request_result.data) return;
         component.$Message.success('add success');
@@ -128,12 +141,26 @@ async function delete_data_directory(obj) {
         const data_directory = {
             "id": obj.data.id,
         };
-        // TODO fix the bug: cascade level delete
+        if (obj.data.children){
+            component.$Message.error("this data directory has children");
+            await init_designer_data_directory();
+            return;
+        }
         // save to distribution
-        const net_request_result = await do_execute_sql({
+        let net_request_result = await do_execute_sql({
             "execute": `
                 delete from designer_data_directories where id = {{id}}
                 `.format(data_directory),
+        });
+        if (!net_request_result || !net_request_result.status || net_request_result.status != 200 || !net_request_result.data) return;
+        // drop a data table
+        const db_data = {
+            "id": obj.data.id
+        };
+        net_request_result = await do_execute_sql({
+            "execute": `
+                drop table designer_data_data_{{id}}
+                `.format(db_data),
         });
         if (!net_request_result || !net_request_result.status || net_request_result.status != 200 || !net_request_result.data) return;
         component.$Message.success('delete success');

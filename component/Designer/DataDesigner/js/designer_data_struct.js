@@ -247,13 +247,8 @@ async function query_designer_data_struct() {
 
 async function insert_designer_data_struct(data_struct) {
     try {
-        // query data_struct from distribution
-        let net_request_result = await do_execute_sql({
-            "execute": `
-                insert into designer_data_struct(did, code, meaning) values ({{did}},'{{code}}','{{meaning}}')
-                `.format(data_struct),
-        });
-        if (!net_request_result || !net_request_result.status || net_request_result.status != 200 || !net_request_result.data) return;
+        let net_request_result = null;
+
         // alter data table add column
         const db_data = {
             "did": data_struct["did"],
@@ -267,6 +262,14 @@ async function insert_designer_data_struct(data_struct) {
         });
         if (!net_request_result || !net_request_result.status || net_request_result.status != 200 || !net_request_result.data) return;
 
+        // query data_struct from distribution
+        net_request_result = await do_execute_sql({
+            "execute": `
+                insert into designer_data_struct(did, code, meaning) values ({{did}},'{{code}}','{{meaning}}')
+                `.format(data_struct),
+        });
+        if (!net_request_result || !net_request_result.status || net_request_result.status != 200 || !net_request_result.data) return;
+
         component.$Message.success('insert success');
         query_designer_data_struct();
     } catch (e) {
@@ -277,14 +280,8 @@ async function insert_designer_data_struct(data_struct) {
 
 async function update_designer_data_struct(data_struct) {
     try {
-        // query data_struct from distribution
-        let net_request_result = await do_execute_sql({
-            "execute": `
-                update designer_data_struct set code = '{{code}}',meaning = '{{meaning}}' where id = {{id}}
-                `.format(data_struct),
-        });
-        if (!net_request_result || !net_request_result.status || net_request_result.status != 200 || !net_request_result.data) return;
-        console.log(vue_data.data_struct.data_line_backup);
+        let net_request_result = null;
+
         // alter data table change column
         const db_data = {
             "did": data_struct["did"],
@@ -299,6 +296,14 @@ async function update_designer_data_struct(data_struct) {
         });
         if (!net_request_result || !net_request_result.status || net_request_result.status != 200 || !net_request_result.data) return;
 
+        // query data_struct from distribution
+        net_request_result = await do_execute_sql({
+            "execute": `
+                update designer_data_struct set code = '{{code}}',meaning = '{{meaning}}' where id = {{id}}
+                `.format(data_struct),
+        });
+        if (!net_request_result || !net_request_result.status || net_request_result.status != 200 || !net_request_result.data) return;
+        console.log(vue_data.data_struct.data_line_backup);
 
         component.$Message.success('update success');
         query_designer_data_struct();
@@ -310,13 +315,7 @@ async function update_designer_data_struct(data_struct) {
 
 async function delete_designer_data_struct(data_struct) {
     try {
-        // query data_struct from distribution
-        let net_request_result = await do_execute_sql({
-            "execute": `
-                delete from designer_data_struct where id = {{id}}
-                `.format(data_struct),
-        });
-        if (!net_request_result || !net_request_result.status || net_request_result.status != 200 || !net_request_result.data) return;
+        let net_request_result = null;
 
         // alter data table delete column
         const db_data = {
@@ -327,6 +326,14 @@ async function delete_designer_data_struct(data_struct) {
             "execute": `
                 ALTER TABLE designer_data_data_{{did}} drop {{column}};
                 `.format(db_data),
+        });
+        if (!net_request_result || !net_request_result.status || net_request_result.status != 200 || !net_request_result.data) return;
+
+        // query data_struct from distribution
+        net_request_result = await do_execute_sql({
+            "execute": `
+                delete from designer_data_struct where id = {{id}}
+                `.format(data_struct),
         });
         if (!net_request_result || !net_request_result.status || net_request_result.status != 200 || !net_request_result.data) return;
 

@@ -137,22 +137,8 @@ async function update_data_directory(obj) {
 
 async function delete_data_directory(obj) {
     try {
-        // prepare data directory data
-        const data_directory = {
-            "id": obj.data.id,
-        };
-        if (obj.data.children) {
-            component.$Message.error("this data directory has children");
-            await init_designer_data_directory();
-            return;
-        }
-        // save to distribution
-        let net_request_result = await do_execute_sql({
-            "execute": `
-                delete from designer_data_directories where id = {{id}}
-                `.format(data_directory),
-        });
-        if (!net_request_result || !net_request_result.status || net_request_result.status != 200 || !net_request_result.data) return;
+        let net_request_result = null;
+
         // drop a data table
         const db_data = {
             "id": obj.data.id
@@ -163,6 +149,24 @@ async function delete_data_directory(obj) {
                 `.format(db_data),
         });
         if (!net_request_result || !net_request_result.status || net_request_result.status != 200 || !net_request_result.data) return;
+        
+        // prepare data directory data
+        const data_directory = {
+            "id": obj.data.id,
+        };
+        if (obj.data.children) {
+            component.$Message.error("this data directory has children");
+            await init_designer_data_directory();
+            return;
+        }
+        // save to distribution
+        net_request_result = await do_execute_sql({
+            "execute": `
+                delete from designer_data_directories where id = {{id}}
+                `.format(data_directory),
+        });
+        if (!net_request_result || !net_request_result.status || net_request_result.status != 200 || !net_request_result.data) return;
+
         component.$Message.success('delete success');
         // close the data struct
         vue_data.data_struct.show = false;

@@ -99,6 +99,7 @@ function editable_table_common_operation_column() {
                             vue_data.data_struct.opt_line = cur_line_index;
                             const cur_line_data = vue_data.data_struct.data[cur_line_index];
                             vue_data.data_struct.data[cur_line_index] = cur_line_data;
+                            cur_line_data['did'] = vue_data.data_directory.cur_selected.id;
                             vue_data.data_struct.data_line_backup = JSON.parse(JSON.stringify(cur_line_data));
                         }
                     }
@@ -125,6 +126,7 @@ function editable_table_common_operation_column() {
                                     vue_data.data_struct.opt_name = "delete";
                                     vue_data.data_struct.opt_line = cur_line_index;
                                     const cur_line_data = vue_data.data_struct.data[cur_line_index];
+                                    cur_line_data['did'] = vue_data.data_directory.cur_selected.id;
                                     opt_data(cur_line_data);
                                 },
                                 closable: true,
@@ -236,7 +238,6 @@ async function query_designer_data_struct() {
         });
         if (!net_request_result || !net_request_result.status || net_request_result.status != 200 || !net_request_result.data) return;
         vue_data.data_struct.data = net_request_result.data;
-        // adapter list to tree
         component.$Message.success('query success');
     } catch (e) {
         console.log(e);
@@ -247,14 +248,25 @@ async function query_designer_data_struct() {
 async function insert_designer_data_struct(data_struct) {
     try {
         // query data_struct from distribution
-        const net_request_result = await do_execute_sql({
+        let net_request_result = await do_execute_sql({
             "execute": `
                 insert into designer_data_struct(did, code, meaning) values ({{did}},'{{code}}','{{meaning}}')
                 `.format(data_struct),
         });
         if (!net_request_result || !net_request_result.status || net_request_result.status != 200 || !net_request_result.data) return;
-        vue_data.data_struct.data = net_request_result.data;
-        // adapter list to tree
+        // alter data table add column
+        const db_data = {
+            "did": data_struct["did"],
+            "column": data_struct["code"],
+            "comment": data_struct["meaning"],
+        };
+        net_request_result = await do_execute_sql({
+            "execute": `
+                ALTER TABLE designer_data_data_{{did}} ADD COLUMN {{column}} VARCHAR(255) DEFAULT NULL COMMENT '{{comment}}';
+                `.format(db_data),
+        });
+        if (!net_request_result || !net_request_result.status || net_request_result.status != 200 || !net_request_result.data) return;
+
         component.$Message.success('insert success');
         query_designer_data_struct();
     } catch (e) {
@@ -266,14 +278,28 @@ async function insert_designer_data_struct(data_struct) {
 async function update_designer_data_struct(data_struct) {
     try {
         // query data_struct from distribution
-        const net_request_result = await do_execute_sql({
+        let net_request_result = await do_execute_sql({
             "execute": `
                 update designer_data_struct set code = '{{code}}',meaning = '{{meaning}}' where id = {{id}}
                 `.format(data_struct),
         });
         if (!net_request_result || !net_request_result.status || net_request_result.status != 200 || !net_request_result.data) return;
-        vue_data.data_struct.data = net_request_result.data;
-        // adapter list to tree
+        console.log(vue_data.data_struct.data_line_backup);
+        // alter data table change column
+        const db_data = {
+            "did": data_struct["did"],
+            "column_old": vue_data.data_struct.data_line_backup["code"],
+            "column": data_struct["code"],
+            "comment": data_struct["meaning"],
+        };
+        net_request_result = await do_execute_sql({
+            "execute": `
+                ALTER TABLE designer_data_data_{{did}} change {{column_old}} {{column}} VARCHAR(255) DEFAULT NULL COMMENT '{{comment}}';
+                `.format(db_data),
+        });
+        if (!net_request_result || !net_request_result.status || net_request_result.status != 200 || !net_request_result.data) return;
+
+
         component.$Message.success('update success');
         query_designer_data_struct();
     } catch (e) {
@@ -285,15 +311,26 @@ async function update_designer_data_struct(data_struct) {
 async function delete_designer_data_struct(data_struct) {
     try {
         // query data_struct from distribution
-        const net_request_result = await do_execute_sql({
+        let net_request_result = await do_execute_sql({
             "execute": `
                 delete from designer_data_struct where id = {{id}}
                 `.format(data_struct),
         });
         if (!net_request_result || !net_request_result.status || net_request_result.status != 200 || !net_request_result.data) return;
-        vue_data.data_struct.data = net_request_result.data;
-        // adapter list to tree
-        component.$Message.success('update success');
+
+        // alter data table delete column
+        const db_data = {
+            "did": data_struct["did"],
+            "column": data_struct["code"],
+        };
+        net_request_result = await do_execute_sql({
+            "execute": `
+                ALTER TABLE designer_data_data_{{did}} drop {{column}};
+                `.format(db_data),
+        });
+        if (!net_request_result || !net_request_result.status || net_request_result.status != 200 || !net_request_result.data) return;
+
+        component.$Message.success('delete success');
         query_designer_data_struct();
     } catch (e) {
         console.log(e.response.data);
